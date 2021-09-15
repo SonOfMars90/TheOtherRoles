@@ -51,9 +51,12 @@ namespace TheOtherRoles
             Warlock.clearAndReload();
             SecurityGuard.clearAndReload();
             Arsonist.clearAndReload();
-            Guesser.clearAndReload();
             BountyHunter.clearAndReload();
             Bait.clearAndReload();
+            Roles.Witch.clearAndReload();
+            Roles.Ninja.clearAndReload();
+            Roles.Chamaleon.clearAndReload();
+            Roles.TwoFace.clearAndReload();
         }
 
         public static class Jester {
@@ -951,26 +954,6 @@ namespace TheOtherRoles
         }
     }
 
-    public static class Guesser {
-        public static PlayerControl guesser;
-        public static Color color = new Color32(255, 255, 0, byte.MaxValue);
-        private static Sprite targetSprite;
-
-        public static int remainingShots = 2;
-
-        public static Sprite getTargetSprite() {
-            if (targetSprite) return targetSprite;
-            targetSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.TargetIcon.png", 150f);
-            return targetSprite;
-        }
-
-        public static void clearAndReload() {
-            guesser = null;
-            
-            remainingShots = Mathf.RoundToInt(CustomOptionHolder.guesserNumberOfShots.getFloat());
-        }
-    }
-
     public static class BountyHunter {
         public static PlayerControl bountyHunter;
         public static Color color = Palette.ImpostorRed;
@@ -1024,6 +1007,47 @@ namespace TheOtherRoles
             reported = false;
             highlightAllVents = CustomOptionHolder.baitHighlightAllVents.getBool();
             reportDelay = CustomOptionHolder.baitReportDelay.getFloat();
+        }
+    }
+
+    public static class BadGuesser {
+        public static PlayerControl guesser;
+        public static Color color = Palette.ImpostorRed;
+        private static Sprite targetSprite;
+
+        public static int remainingShots = 2;
+
+        public static Sprite getTargetSprite() {
+            if(targetSprite) return targetSprite;
+            targetSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.TargetIcon.png", 150f);
+            return targetSprite;
+        }
+
+        public static void clearAndReload() {
+            guesser = null;
+
+            remainingShots = Mathf.RoundToInt(CustomOptionHolder.badGuesserNumberOfShots.getFloat());
+        }
+    }
+
+
+    public static class NiceGuesser {
+        public static PlayerControl guesser;
+        public static Color color = new Color32(255, 255, 0, byte.MaxValue);
+        private static Sprite targetSprite;
+
+        public static int remainingShots = 2;
+
+        public static Sprite getTargetSprite() {
+            if(targetSprite) return targetSprite;
+            targetSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.TargetIcon.png", 150f);
+            return targetSprite;
+        }
+
+        public static void clearAndReload() {
+            guesser = null;
+
+            remainingShots = Mathf.RoundToInt(CustomOptionHolder.niceGuesserNumberOfShots.getFloat());
         }
     }
 }

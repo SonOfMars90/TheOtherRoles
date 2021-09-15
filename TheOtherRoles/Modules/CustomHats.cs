@@ -191,6 +191,7 @@ namespace TheOtherRoles.Modules {
                 chd.flipresource = filePath + chd.flipresource;
             if (chd.backflipresource != null)
                 chd.backflipresource = filePath + chd.backflipresource;
+
             return CreateHatBehaviour(chd, true);
         }
 

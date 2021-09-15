@@ -7,6 +7,7 @@ using static TheOtherRoles.TheOtherRoles;
 using TheOtherRoles.Objects;
 using System.Collections.Generic;
 using System.Linq;
+using Hazel;
 
 namespace TheOtherRoles.Patches {
     [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
@@ -70,58 +71,59 @@ namespace TheOtherRoles.Patches {
         }
 
         static void setNameColors() {
-            if (Jester.jester != null && Jester.jester == PlayerControl.LocalPlayer)
+            if(Jester.jester != null && Jester.jester == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Jester.jester, Jester.color);
-            else if (Mayor.mayor != null && Mayor.mayor == PlayerControl.LocalPlayer)
+            else if(Mayor.mayor != null && Mayor.mayor == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Mayor.mayor, Mayor.color);
-            else if (Engineer.engineer != null && Engineer.engineer == PlayerControl.LocalPlayer)
+            else if(Engineer.engineer != null && Engineer.engineer == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Engineer.engineer, Engineer.color);
-            else if (Sheriff.sheriff != null && Sheriff.sheriff == PlayerControl.LocalPlayer) 
+            else if(Sheriff.sheriff != null && Sheriff.sheriff == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Sheriff.sheriff, Sheriff.color);
-            else if (Lighter.lighter != null && Lighter.lighter == PlayerControl.LocalPlayer) 
+            else if(Lighter.lighter != null && Lighter.lighter == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Lighter.lighter, Lighter.color);
-            else if (Detective.detective != null && Detective.detective == PlayerControl.LocalPlayer) 
+            else if(Detective.detective != null && Detective.detective == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Detective.detective, Detective.color);
-            else if (TimeMaster.timeMaster != null && TimeMaster.timeMaster == PlayerControl.LocalPlayer)
+            else if(TimeMaster.timeMaster != null && TimeMaster.timeMaster == PlayerControl.LocalPlayer)
                 setPlayerNameColor(TimeMaster.timeMaster, TimeMaster.color);
-            else if (Medic.medic != null && Medic.medic == PlayerControl.LocalPlayer)
+            else if(Medic.medic != null && Medic.medic == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Medic.medic, Medic.color);
-            else if (Shifter.shifter != null && Shifter.shifter == PlayerControl.LocalPlayer)
+            else if(Shifter.shifter != null && Shifter.shifter == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Shifter.shifter, Shifter.color);
-            else if (Swapper.swapper != null && Swapper.swapper == PlayerControl.LocalPlayer)
+            else if(Swapper.swapper != null && Swapper.swapper == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Swapper.swapper, Swapper.color);
-            else if (Seer.seer != null && Seer.seer == PlayerControl.LocalPlayer)
-                setPlayerNameColor(Seer.seer, Seer.color);  
-            else if (Hacker.hacker != null && Hacker.hacker == PlayerControl.LocalPlayer) 
+            else if(Seer.seer != null && Seer.seer == PlayerControl.LocalPlayer)
+                setPlayerNameColor(Seer.seer, Seer.color);
+            else if(Hacker.hacker != null && Hacker.hacker == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Hacker.hacker, Hacker.color);
-            else if (Tracker.tracker != null && Tracker.tracker == PlayerControl.LocalPlayer) 
+            else if(Tracker.tracker != null && Tracker.tracker == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Tracker.tracker, Tracker.color);
-            else if (Snitch.snitch != null && Snitch.snitch == PlayerControl.LocalPlayer) 
+            else if(Snitch.snitch != null && Snitch.snitch == PlayerControl.LocalPlayer)
                 setPlayerNameColor(Snitch.snitch, Snitch.color);
-            else if (Jackal.jackal != null && Jackal.jackal == PlayerControl.LocalPlayer) {
+            else if(Jackal.jackal != null && Jackal.jackal == PlayerControl.LocalPlayer) {
                 // Jackal can see his sidekick
                 setPlayerNameColor(Jackal.jackal, Jackal.color);
-                if (Sidekick.sidekick != null) {
+                if(Sidekick.sidekick != null) {
                     setPlayerNameColor(Sidekick.sidekick, Jackal.color);
                 }
-                if (Jackal.fakeSidekick != null) {
+                if(Jackal.fakeSidekick != null) {
                     setPlayerNameColor(Jackal.fakeSidekick, Jackal.color);
                 }
-            }
-            else if (Spy.spy != null && Spy.spy == PlayerControl.LocalPlayer) {
+            } else if(Spy.spy != null && Spy.spy == PlayerControl.LocalPlayer) {
                 setPlayerNameColor(Spy.spy, Spy.color);
-            } else if (SecurityGuard.securityGuard != null && SecurityGuard.securityGuard == PlayerControl.LocalPlayer) {
+            } else if(SecurityGuard.securityGuard != null && SecurityGuard.securityGuard == PlayerControl.LocalPlayer) {
                 setPlayerNameColor(SecurityGuard.securityGuard, SecurityGuard.color);
-            } else if (Arsonist.arsonist != null && Arsonist.arsonist == PlayerControl.LocalPlayer) {
+            } else if(Arsonist.arsonist != null && Arsonist.arsonist == PlayerControl.LocalPlayer) {
                 setPlayerNameColor(Arsonist.arsonist, Arsonist.color);
-            } else if (Guesser.guesser != null && Guesser.guesser == PlayerControl.LocalPlayer) {
-                setPlayerNameColor(Guesser.guesser, Guesser.guesser.Data.IsImpostor ? Palette.ImpostorRed : Guesser.color);
-            } else if (Bait.bait != null && Bait.bait == PlayerControl.LocalPlayer) {
+            } else if(NiceGuesser.guesser != null && NiceGuesser.guesser == PlayerControl.LocalPlayer) {
+                setPlayerNameColor(NiceGuesser.guesser, NiceGuesser.color);
+            } else if(Bait.bait != null && Bait.bait == PlayerControl.LocalPlayer) {
                 setPlayerNameColor(Bait.bait, Bait.color);
+            } else if(Roles.Witch.witch != null && Roles.Witch.witch == PlayerControl.LocalPlayer) {
+                setPlayerNameColor(Roles.Witch.witch, Roles.Witch.color);
             }
 
-            // No else if here, as a Lover of team Jackal needs the colors
-            if (Sidekick.sidekick != null && Sidekick.sidekick == PlayerControl.LocalPlayer) {
+                // No else if here, as a Lover of team Jackal needs the colors
+                if (Sidekick.sidekick != null && Sidekick.sidekick == PlayerControl.LocalPlayer) {
                 // Sidekick can see the jackal
                 setPlayerNameColor(Sidekick.sidekick, Sidekick.color);
                 if (Jackal.jackal != null) {
@@ -179,6 +181,10 @@ namespace TheOtherRoles.Patches {
             }
         }
 
+        static void updateWitchShielded() {
+            if(Roles.Witch.shielded == null) return;
+        }
+
         static void timerUpdate() {
             Hacker.hackerTimer -= Time.deltaTime;
             Lighter.lighterTimer -= Time.deltaTime;
@@ -188,11 +194,67 @@ namespace TheOtherRoles.Patches {
         static void camouflageAndMorphActions() {
             float oldCamouflageTimer = Camouflager.camouflageTimer;
             float oldMorphTimer = Morphling.morphTimer;
+            float oldTwoFaceTimer = Roles.TwoFace.morphTimer;
 
             Camouflager.camouflageTimer -= Time.deltaTime;
             Morphling.morphTimer -= Time.deltaTime;
+            Roles.TwoFace.morphTimer -= Time.deltaTime;
+
 
             // Morphling player size not done here
+            // Set Two Face morphed look
+            if(Roles.TwoFace.morphTimer > 0f && Camouflager.camouflageTimer <= 0f) {
+                // Get Player to morph
+                if(PlayerControl.LocalPlayer == Roles.TwoFace.twoFace) {
+                    float xOld = PlayerControl.LocalPlayer.transform.position.x;
+                    RPCProcedure.setTwoFacePos(xOld + 0.00003 >= Roles.TwoFace.xPosition);
+                    Roles.TwoFace.xPosition = xOld;
+                }
+
+                    if(Roles.TwoFace.pos) {
+                        if(Roles.TwoFace.active && PlayerControl.LocalPlayer == Roles.TwoFace.twoFace) {
+                            System.Random random = new System.Random();
+                            int f = random.Next(1, PlayerControl.AllPlayerControls._size);
+                            int i = 1;
+                            foreach(PlayerControl p in PlayerControl.AllPlayerControls) {
+                                if(p == null) continue;
+                                if(p == Roles.TwoFace.twoFace) {
+                                    f++;
+                                }
+                                if(i == f) {
+                                    RPCProcedure.setMorphTarget(p.PlayerId, false);
+                                    break;
+                                } else {
+                                    i++;
+                                }
+                            }
+                        }
+
+                        if(Roles.TwoFace.twoFace != null && Roles.TwoFace.morphTarget != null) {
+                        Roles.TwoFace.twoFace.nameText.text = HudManagerUpdatePatch.hidePlayerName(PlayerControl.LocalPlayer, Roles.TwoFace.twoFace) ? "" : Roles.TwoFace.morphTarget.Data.PlayerName;
+                        Roles.TwoFace.twoFace.myRend.material.SetColor("_BackColor", Palette.ShadowColors[Roles.TwoFace.morphTarget.Data.ColorId]);
+                        Roles.TwoFace.twoFace.myRend.material.SetColor("_BodyColor", Palette.PlayerColors[Roles.TwoFace.morphTarget.Data.ColorId]);
+                        Roles.TwoFace.twoFace.HatRenderer.SetHat(Roles.TwoFace.morphTarget.Data.HatId, Roles.TwoFace.morphTarget.Data.ColorId);
+                        Roles.TwoFace.twoFace.nameText.transform.localPosition = new Vector3(0f, ((Roles.TwoFace.morphTarget.Data.HatId == 0U) ? 0.7f : 1.05f) * 2f, -0.5f);
+
+                        if(Roles.TwoFace.twoFace.MyPhysics.Skin.skin.ProdId != DestroyableSingleton<HatManager>.Instance.AllSkins[(int)Roles.TwoFace.morphTarget.Data.SkinId].ProdId) {
+                            Helpers.setSkinWithAnim(Roles.TwoFace.twoFace.MyPhysics, Roles.TwoFace.twoFace.Data.SkinId);
+                        }
+                        if(Roles.TwoFace.twoFace.CurrentPet == null || Roles.TwoFace.twoFace.CurrentPet.ProdId != DestroyableSingleton<HatManager>.Instance.AllPets[(int)Roles.TwoFace.morphTarget.Data.PetId].ProdId) {
+                            if(Roles.TwoFace.twoFace.CurrentPet) UnityEngine.Object.Destroy(Roles.TwoFace.twoFace.CurrentPet.gameObject);
+                            Roles.TwoFace.twoFace.CurrentPet = UnityEngine.Object.Instantiate<PetBehaviour>(DestroyableSingleton<HatManager>.Instance.AllPets[(int)Roles.TwoFace.morphTarget.Data.PetId]);
+                            Roles.TwoFace.twoFace.CurrentPet.transform.position = Roles.TwoFace.twoFace.transform.position;
+                            Roles.TwoFace.twoFace.CurrentPet.Source = Roles.TwoFace.twoFace;
+                            Roles.TwoFace.twoFace.CurrentPet.Visible = Roles.TwoFace.twoFace.Visible;
+                            PlayerControl.SetPlayerMaterialColors(Roles.TwoFace.morphTarget.Data.ColorId, Roles.TwoFace.twoFace.CurrentPet.rend);
+                        } else if(Roles.TwoFace.twoFace.CurrentPet) {
+                            PlayerControl.SetPlayerMaterialColors(Roles.TwoFace.morphTarget.Data.ColorId, Roles.TwoFace.twoFace.CurrentPet.rend);
+                        }
+                    }
+                } else {
+                    RPCProcedure.setMorphTarget(0, true);
+                }
+            }
 
             // Set morphling morphed look
             if (Morphling.morphTimer > 0f && Camouflager.camouflageTimer <= 0f) {
@@ -240,8 +302,14 @@ namespace TheOtherRoles.Patches {
                         p.CurrentPet.Source = p;
                     }
                 }
-            } 
-            
+            }            
+
+            // TwoFace reset
+            if((oldTwoFaceTimer > 0f || oldCamouflageTimer > 0f) && Camouflager.camouflageTimer <= 0f && Roles.TwoFace.morphTimer <= 0f && Roles.TwoFace.twoFace != null) {
+                Roles.TwoFace.active = false;
+                Roles.TwoFace.resetMorph();
+            }
+
             // Everyone but morphling reset
             if (oldCamouflageTimer > 0f && Camouflager.camouflageTimer <= 0f) {
                 Camouflager.resetCamouflage();
@@ -304,10 +372,14 @@ namespace TheOtherRoles.Patches {
             updateImpostorKillButton(__instance);
             // Timer updates
             timerUpdate();
-            // Camouflager and Morphling
+            // Camouflager and Morphling and Two Face
             camouflageAndMorphActions();
             // Mini
             miniUpdate();
+            // Chamaleon
+            Roles.Chamaleon.chamaleonAction();
+            // Ninja
+            Roles.Ninja.ninjaAction();
         }
     }
 }

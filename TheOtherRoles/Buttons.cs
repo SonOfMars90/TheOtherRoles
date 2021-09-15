@@ -33,6 +33,10 @@ namespace TheOtherRoles
         public static CustomButton warlockCurseButton;
         public static CustomButton securityGuardButton;
         public static CustomButton arsonistButton;
+        public static CustomButton witchShieldButton;
+        public static CustomButton ninjaExpandButton;
+        public static CustomButton chamaleonHideButton;
+        public static CustomButton twoFaceMorphButton;
         public static TMPro.TMP_Text securityGuardButtonScrewsText;
 
         public static void setCustomButtonCooldowns() {
@@ -68,6 +72,17 @@ namespace TheOtherRoles
             morphlingButton.EffectDuration = Morphling.duration;
             lightsOutButton.EffectDuration = Trickster.lightsOutDuration;
             arsonistButton.EffectDuration = Arsonist.duration;
+
+            witchShieldButton.MaxTimer = 0f;
+
+            ninjaExpandButton.MaxTimer = Roles.Ninja.cooldown;
+            ninjaExpandButton.EffectDuration = Roles.Ninja.duration;
+
+            chamaleonHideButton.MaxTimer = Roles.Chamaleon.cooldown;
+            chamaleonHideButton.EffectDuration = Roles.Chamaleon.duration;
+
+            twoFaceMorphButton.MaxTimer = Roles.TwoFace.cooldown;
+            twoFaceMorphButton.EffectDuration = Roles.TwoFace.duration;
 
             // Already set the timer to the max, as the button is enabled during the game and not available at the start
             lightsOutButton.Timer = lightsOutButton.MaxTimer;
@@ -780,6 +795,127 @@ namespace TheOtherRoles
                     }
                 }
             );
+
+            // Witch Shield
+            witchShieldButton = new CustomButton(
+                () => {
+                    witchShieldButton.Timer = 0f;
+
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.WitchSetShielded, Hazel.SendOption.Reliable, -1);
+                    writer.Write(Roles.Witch.witch.PlayerId);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    RPCProcedure.witchSetShielded(PlayerControl.LocalPlayer.PlayerId);
+                },
+                () => { return Roles.Witch.witch != null && Roles.Witch.witch == PlayerControl.LocalPlayer && !PlayerControl.LocalPlayer.Data.IsDead; },
+                () => { return !Roles.Witch.usedShield && PlayerControl.LocalPlayer.CanMove; },
+                () => { },
+                Roles.Witch.getButtonSprite(),
+                new Vector3(-1.3f, 0, 0),
+                __instance,
+                KeyCode.Q
+            );
+
+            // Ninja Expand
+            ninjaExpandButton = new CustomButton(
+                () => {
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.NinjaExpand, Hazel.SendOption.Reliable, -1);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    RPCProcedure.ninjaExpand();
+                },
+                () => { return Roles.Ninja.ninja != null && Roles.Ninja.ninja == PlayerControl.LocalPlayer && !PlayerControl.LocalPlayer.Data.IsDead; },
+                () => { return PlayerControl.LocalPlayer.CanMove; },
+                () => {
+                    ninjaExpandButton.Timer = ninjaExpandButton.MaxTimer;
+                    ninjaExpandButton.isEffectActive = false;
+                    ninjaExpandButton.killButtonManager.TimerText.color = Palette.EnabledColor;
+                },
+                Roles.Ninja.getButtonSprite(),
+                 new Vector3(-1.3f, 1.3f, 0f),
+                __instance,
+                KeyCode.F,
+                true,
+                Roles.Ninja.duration,
+                () => { ninjaExpandButton.Timer = ninjaExpandButton.MaxTimer; }
+            );
+
+            // Chamaleon Hide
+            chamaleonHideButton = new CustomButton(
+                () => {
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ChamaleonHide, Hazel.SendOption.Reliable, -1);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    RPCProcedure.chamaleonHide();
+
+                    if(Roles.Chamaleon.rootTime > 0) {
+                        PlayerControl.LocalPlayer.NetTransform.Halt(); // Stop current movement so the chamaleon is not just running straight into the next object
+                        PlayerControl.LocalPlayer.moveable = false;
+                        HudManager.Instance.StartCoroutine(Effects.Lerp(Roles.Chamaleon.rootTime, new Action<float>((p) => { // Delayed action
+                            if(p == 1f) {
+                                PlayerControl.LocalPlayer.moveable = true;
+                            }
+                        })));
+                    }
+                },
+                () => { return Roles.Chamaleon.chamaleon != null && Roles.Chamaleon.chamaleon == PlayerControl.LocalPlayer && !PlayerControl.LocalPlayer.Data.IsDead; },
+                () => { return PlayerControl.LocalPlayer.CanMove; },
+                () => {
+                    chamaleonHideButton.Timer = chamaleonHideButton.MaxTimer;
+                    chamaleonHideButton.isEffectActive = false;
+                    chamaleonHideButton.killButtonManager.TimerText.color = Palette.EnabledColor;
+                },
+                Roles.Chamaleon.getButtonSprite(),
+                 new Vector3(-1.3f, 1.3f, 0f),
+                __instance,
+                KeyCode.F,
+                true,
+                Roles.Chamaleon.duration,
+                () => { chamaleonHideButton.Timer = chamaleonHideButton.MaxTimer; }
+            );
+
+
+            // Two Face morph
+            twoFaceMorphButton = new CustomButton(
+                () => {
+                    System.Random random = new System.Random();
+                    int f = random.Next(1, PlayerControl.AllPlayerControls._size);
+                    int i = 1;
+                    foreach(PlayerControl p in PlayerControl.AllPlayerControls) {
+                        if(p == null) continue;
+                        if(p == PlayerControl.LocalPlayer) {
+                            f++;
+                        }
+                        if(i == f) {
+                            RPCProcedure.twoFaceMorph(p.PlayerId);
+                            break;
+                        } else {
+                            i++;
+                        }
+                    }
+
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.TwoFaceMorph, Hazel.SendOption.Reliable, -1);
+                    writer.Write(Roles.TwoFace.morphTarget);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+
+                    twoFaceMorphButton.EffectDuration = Roles.TwoFace.duration;
+                },
+                () => { return Roles.TwoFace.twoFace != null && Roles.TwoFace.twoFace == PlayerControl.LocalPlayer && !PlayerControl.LocalPlayer.Data.IsDead; },
+                () => { return PlayerControl.LocalPlayer.CanMove; },
+                () => {
+                    twoFaceMorphButton.Timer = twoFaceMorphButton.MaxTimer;
+                    twoFaceMorphButton.Sprite = Roles.TwoFace.getMorphSprite();
+                    twoFaceMorphButton.isEffectActive = false;
+                    twoFaceMorphButton.killButtonManager.TimerText.color = Palette.EnabledColor;
+                    Roles.TwoFace.morphTarget = null;
+                },
+                Roles.TwoFace.getMorphSprite(),
+                    new Vector3(-1.3f, 1.3f, 0f),
+                __instance,
+                KeyCode.F,
+                true,
+                Roles.TwoFace.duration,
+            () => { twoFaceMorphButton.Timer = twoFaceMorphButton.MaxTimer; }
+                );
+            ;
+            ;
 
             // Set the default (or settings from the previous game) timers/durations when spawning the buttons
             setCustomButtonCooldowns();

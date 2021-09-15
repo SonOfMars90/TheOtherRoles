@@ -123,6 +123,10 @@ namespace TheOtherRoles {
                 }
                 return false;
             }
+            //Block imposter shielded kill by witch
+            else if(Roles.Witch.shielded != null && Roles.Witch.shielded == target) {
+                return false;
+            }
             return true;
         }
 

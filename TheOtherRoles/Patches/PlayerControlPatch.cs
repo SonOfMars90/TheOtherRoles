@@ -72,9 +72,17 @@ namespace TheOtherRoles.Patches {
                         || (Medic.showShielded == 2 && PlayerControl.LocalPlayer == Medic.medic); // Medic only
                 }
 
-                if (hasVisibleShield) {
+                bool witchShieldActive = false;
+                if(Camouflager.camouflageTimer <= 0f && Roles.Witch.shielded != null && ((target == Roles.Witch.shielded && !isMorphedMorphling) || (isMorphedMorphling && Morphling.morphTarget == Roles.Witch.shielded))) {
+                    if(Roles.Witch.showShielded) witchShieldActive = true;
+                }
+
+                if(hasVisibleShield) {
                     target.myRend.material.SetFloat("_Outline", 1f);
                     target.myRend.material.SetColor("_OutlineColor", Medic.shieldedColor);
+                } else if(witchShieldActive) {
+                    target.myRend.material.SetFloat("_Outline", 1f);
+                    target.myRend.material.SetColor("_OutlineColor", Roles.Witch.shieldedColor);
                 } else {
                     target.myRend.material.SetFloat("_Outline", 0f);
                 }
@@ -334,6 +342,11 @@ namespace TheOtherRoles.Patches {
                 collider.radius = correctedColliderRadius;
             }
             if (Morphling.morphling != null && p == Morphling.morphling && Morphling.morphTarget == Mini.mini && Morphling.morphTimer > 0f) {
+                p.transform.localScale = new Vector3(scale, scale, 1f);
+                collider.radius = correctedColliderRadius;
+            }
+
+            if(Roles.TwoFace.twoFace != null && p == Roles.TwoFace.twoFace && Roles.TwoFace.morphTarget == Mini.mini && Roles.TwoFace.morphTimer > 0f) {
                 p.transform.localScale = new Vector3(scale, scale, 1f);
                 collider.radius = correctedColliderRadius;
             }
@@ -626,7 +639,8 @@ namespace TheOtherRoles.Patches {
     class PlayerPhysicsWalkPlayerToPatch {
         private static Vector2 offset = Vector2.zero;
         public static void Prefix(PlayerPhysics __instance) {
-            bool correctOffset = Camouflager.camouflageTimer <= 0f && (__instance.myPlayer == Mini.mini ||  (Morphling.morphling != null && __instance.myPlayer == Morphling.morphling && Morphling.morphTarget == Mini.mini && Morphling.morphTimer > 0f));
+            bool correctOffset = Camouflager.camouflageTimer <= 0f && (__instance.myPlayer == Mini.mini ||  ((Morphling.morphling != null && __instance.myPlayer == Morphling.morphling && Morphling.morphTarget == Mini.mini && Morphling.morphTimer > 0f)
+                || (Roles.TwoFace.twoFace != null && __instance.myPlayer == Roles.TwoFace.twoFace && Roles.TwoFace.morphTarget == Mini.mini && Roles.TwoFace.morphTimer > 0f)));
             if (correctOffset) {
                 float currentScaling = (Mini.growingProgress() + 1) * 0.5f;
                 __instance.myPlayer.Collider.offset = currentScaling * Mini.defaultColliderOffset * Vector2.down;
@@ -663,10 +677,11 @@ namespace TheOtherRoles.Patches {
     {
         static void Postfix(PlayerControl __instance, [HarmonyArgument(0)]GameData.PlayerInfo target)
         {
-            // Medic or Detective report
+            // Medic or Detective or Witch report
             bool isMedicReport = Medic.medic != null && Medic.medic == PlayerControl.LocalPlayer && __instance.PlayerId == Medic.medic.PlayerId;
             bool isDetectiveReport = Detective.detective != null && Detective.detective == PlayerControl.LocalPlayer && __instance.PlayerId == Detective.detective.PlayerId;
-            if (isMedicReport || isDetectiveReport)
+            bool isWitchReport = Roles.Witch.witch != null && Roles.Witch.witch == PlayerControl.LocalPlayer && __instance.PlayerId == Roles.Witch.witch.PlayerId;
+            if (isMedicReport || isDetectiveReport || isWitchReport)
             {
                 DeadPlayer deadPlayer = deadPlayers?.Where(x => x.player?.PlayerId == target?.PlayerId)?.FirstOrDefault();
 
@@ -674,20 +689,45 @@ namespace TheOtherRoles.Patches {
                     float timeSinceDeath = ((float)(DateTime.UtcNow - deadPlayer.timeOfDeath).TotalMilliseconds);
                     string msg = "";
 
-                    if (isMedicReport) {
+                    if(isMedicReport) {
                         msg = $"Body Report: Killed {Math.Round(timeSinceDeath / 1000)}s ago!";
-                    } else if (isDetectiveReport) {
-                        if (timeSinceDeath < Detective.reportNameDuration * 1000) {
-                            msg =  $"Body Report: The killer appears to be {deadPlayer.killerIfExisting.name}!";
-                        } else if (timeSinceDeath < Detective.reportColorDuration * 1000) {
+                    } else if(isDetectiveReport) {
+                        if(timeSinceDeath < Detective.reportNameDuration * 1000) {
+                            msg = $"Body Report: The killer appears to be {deadPlayer.killerIfExisting.name}!";
+                        } else if(timeSinceDeath < Detective.reportColorDuration * 1000) {
                             var typeOfColor = Helpers.isLighterColor(deadPlayer.killerIfExisting.Data.ColorId) ? "lighter" : "darker";
-                            msg =  $"Body Report: The killer appears to be a {typeOfColor} color!";
+                            msg = $"Body Report: The killer appears to be a {typeOfColor} color!";
                         } else {
                             msg = $"Body Report: The corpse is too old to gain information from!";
                         }
+                    } else if(isWitchReport) {
+                        String murderRole = "";
+                        foreach(PlayerControl player in PlayerControl.AllPlayerControls) {
+                            if(player.PlayerId == deadPlayer.killerIfExisting.PlayerId) {
+                                if(player == Morphling.morphling) murderRole = "Morphling";
+                                else if(player == Camouflager.camouflager) murderRole = "Camouflager";
+                                else if(player == Godfather.godfather) murderRole = "Godfather";
+                                else if(player == Mafioso.mafioso) murderRole = "Mafioso";
+                                else if(player == Janitor.janitor) murderRole = "Janitor";
+                                else if(player == Vampire.vampire) murderRole = "Vampire";
+                                else if(player == Eraser.eraser) murderRole = "Eraser";
+                                else if(player == Trickster.trickster) murderRole = "Trickster";
+                                else if(player == Cleaner.cleaner) murderRole = "Cleaner";
+                                else if(player == Warlock.warlock) murderRole = "Warlock";
+                                else if(player == Jackal.jackal) murderRole = "Jackal";
+                                else if(player == Sidekick.sidekick) murderRole = "Sidekick";
+                                else if(player == Sheriff.sheriff) murderRole = "Sheriff";
+                                else if(player == Roles.Ninja.ninja) murderRole = "Ninja";
+                                else if(player == Roles.Chamaleon.chamaleon) murderRole = "Chamaleon";
+                                else if(player == BadGuesser.guesser) murderRole = "Evil Guesser";
+                                else if(player == Roles.TwoFace.twoFace) murderRole = "Two Face";
+                                else murderRole = "Imposter"; // If no role was assign on the murder
+                            }
+                        }
+                        msg = $"Body Report: The killer appears to be a " + murderRole;
                     }
 
-                    if (!string.IsNullOrWhiteSpace(msg))
+                        if (!string.IsNullOrWhiteSpace(msg))
                     {   
                         if (AmongUsClient.Instance.AmClient && DestroyableSingleton<HudManager>.Instance)
                         {
@@ -813,7 +853,10 @@ namespace TheOtherRoles.Patches {
         public static void Prefix(KillAnimation __instance, [HarmonyArgument(0)]ref PlayerControl source, [HarmonyArgument(1)]ref PlayerControl target) {
             if (Vampire.vampire != null && Vampire.vampire == source && Vampire.bitten != null && Vampire.bitten == target)
                 source = target;
-            
+
+            if(Roles.Ninja.ninja != null && Roles.Ninja.ninja == source && !Roles.Ninja.moveToPlayer)
+                source = target;
+
             if (Warlock.warlock != null && Warlock.warlock == source && Warlock.curseKillTarget != null && Warlock.curseKillTarget == target) {
                 source = target;
                 Warlock.curseKillTarget = null; // Reset here

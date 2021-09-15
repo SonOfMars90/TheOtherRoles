@@ -45,9 +45,14 @@ namespace TheOtherRoles
         Warlock,
         SecurityGuard,
         Arsonist,
-        Guesser,
         BountyHunter,
         Bait,
+        BadGuesser,
+        NiceGuesser,
+        Witch,
+        Ninja,
+        Chamaleon,
+        TwoFace,
         Crewmate,
         Impostor
     }
@@ -97,7 +102,14 @@ namespace TheOtherRoles
         PlaceCamera,
         SealVent,
         ArsonistWin,
-        GuesserShoot
+        BadGuesserShoot,
+        NiceGuesserShoot,
+        WitchSetShielded,
+        NinjaExpand,
+        ChamaleonHide,
+        TwoFaceMorph,
+        SetMorphTarget,
+        SetTwoFacePos
     }
 
     public static class RPCProcedure {
@@ -228,14 +240,29 @@ namespace TheOtherRoles
                     case RoleId.Arsonist:
                         Arsonist.arsonist = player;
                         break;
-                    case RoleId.Guesser:
-                        Guesser.guesser = player;
-                        break;
                     case RoleId.BountyHunter:
                         BountyHunter.bountyHunter = player;
                         break;
                     case RoleId.Bait:
                         Bait.bait = player;
+                        break;
+                    case RoleId.BadGuesser:
+                        BadGuesser.guesser = player;
+                        break;
+                    case RoleId.NiceGuesser:
+                        NiceGuesser.guesser = player;
+                        break;
+                    case RoleId.Witch:
+                        Roles.Witch.witch = player;
+                        break;
+                    case RoleId.Ninja:
+                        Roles.Ninja.ninja = player;
+                        break;
+                    case RoleId.Chamaleon:
+                        Roles.Chamaleon.chamaleon = player;
+                        break;
+                    case RoleId.TwoFace:
+                        Roles.TwoFace.twoFace = player;
                         break;
                     }
                 }
@@ -422,11 +449,13 @@ namespace TheOtherRoles
                 Spy.spy = oldShifter;
             if (SecurityGuard.securityGuard != null && SecurityGuard.securityGuard == player)
                 SecurityGuard.securityGuard = oldShifter;
-            if (Guesser.guesser != null && Guesser.guesser == player)
-                Guesser.guesser = oldShifter;
+            if (NiceGuesser.guesser != null && NiceGuesser.guesser == player)
+                NiceGuesser.guesser = oldShifter;
             if (Bait.bait != null && Bait.bait == player)
                 Bait.bait = oldShifter;
-            
+            if (Roles.Witch.witch != null && Roles.Witch.witch == player)
+                Roles.Witch.witch = oldShifter;
+
             // Set cooldowns to max for both players
             if (PlayerControl.LocalPlayer == oldShifter || PlayerControl.LocalPlayer == player)
                 CustomButton.ResetAllCooldowns();
@@ -558,6 +587,8 @@ namespace TheOtherRoles
             if (player == Spy.spy) Spy.clearAndReload();
             if (player == SecurityGuard.securityGuard) SecurityGuard.clearAndReload();
             if (player == Bait.bait) Bait.clearAndReload();
+            if (player == Roles.Witch.witch) Roles.Witch.clearAndReload();
+            if (player == NiceGuesser.guesser) NiceGuesser.clearAndReload();
 
             // Impostor roles
             if (player == Morphling.morphling) Morphling.clearAndReload();
@@ -570,11 +601,13 @@ namespace TheOtherRoles
             if (player == Trickster.trickster) Trickster.clearAndReload();
             if (player == Cleaner.cleaner) Cleaner.clearAndReload();
             if (player == Warlock.warlock) Warlock.clearAndReload();
-        
+            if (player == Roles.Ninja.ninja) Roles.Ninja.clearAndReload();
+            if (player == Roles.Chamaleon.chamaleon) Roles.Chamaleon.clearAndReload();
+            if (player == Roles.TwoFace.twoFace) Roles.TwoFace.clearAndReload();
+
             // Other roles
             if (player == Jester.jester) Jester.clearAndReload();
             if (player == Arsonist.arsonist) Arsonist.clearAndReload();
-            if (player == Guesser.guesser) Guesser.clearAndReload();
             if (!ignoreLovers && (player == Lovers.lover1 || player == Lovers.lover2)) { // The whole Lover couple is being erased
                 Lovers.clearAndReload(); 
             }
@@ -679,29 +712,78 @@ namespace TheOtherRoles
             Arsonist.triggerArsonistWin = true;
         }
 
-        public static void guesserShoot(byte playerId) {
+        public static void badGuesserShoot(byte playerId) {
             PlayerControl target = Helpers.playerById(playerId);
-            if (target == null) return;
+            if(target == null) return;
             target.Exiled();
             PlayerControl partner = target.getPartner(); // Lover check
             byte partnerId = partner != null ? partner.PlayerId : playerId;
-            Guesser.remainingShots = Mathf.Max(0, Guesser.remainingShots - 1);
-            if (Constants.ShouldPlaySfx()) SoundManager.Instance.PlaySound(target.KillSfx, false, 0.8f);
-            if (MeetingHud.Instance) {
-                foreach (PlayerVoteArea pva in MeetingHud.Instance.playerStates) {
-                    if (pva.TargetPlayerId == playerId || pva.TargetPlayerId == partnerId) {
+            BadGuesser.remainingShots = Mathf.Max(0, BadGuesser.remainingShots - 1);
+            if(Constants.ShouldPlaySfx()) SoundManager.Instance.PlaySound(target.KillSfx, false, 0.8f);
+            if(MeetingHud.Instance) {
+                foreach(PlayerVoteArea pva in MeetingHud.Instance.playerStates) {
+                    if(pva.TargetPlayerId == playerId || pva.TargetPlayerId == partnerId) {
                         pva.SetDead(pva.DidReport, true);
                         pva.Overlay.gameObject.SetActive(true);
                     }
                 }
-                if (AmongUsClient.Instance.AmHost) 
+                if(AmongUsClient.Instance.AmHost)
                     MeetingHud.Instance.CheckForEndVoting();
             }
-            if (HudManager.Instance != null && Guesser.guesser != null)
-                if (PlayerControl.LocalPlayer == target) 
-                    HudManager.Instance.KillOverlay.ShowKillAnimation(Guesser.guesser.Data, target.Data);
-                else if (partner != null && PlayerControl.LocalPlayer == partner) 
+            if(HudManager.Instance != null && BadGuesser.guesser != null)
+                if(PlayerControl.LocalPlayer == target)
+                    HudManager.Instance.KillOverlay.ShowKillAnimation(BadGuesser.guesser.Data, target.Data);
+                else if(partner != null && PlayerControl.LocalPlayer == partner)
                     HudManager.Instance.KillOverlay.ShowKillAnimation(partner.Data, partner.Data);
+        }
+
+        public static void niceGuesserShoot(byte playerId) {
+            PlayerControl target = Helpers.playerById(playerId);
+            if(target == null) return;
+            target.Exiled();
+            PlayerControl partner = target.getPartner(); // Lover check
+            byte partnerId = partner != null ? partner.PlayerId : playerId;
+            NiceGuesser.remainingShots = Mathf.Max(0, NiceGuesser.remainingShots - 1);
+            if(Constants.ShouldPlaySfx()) SoundManager.Instance.PlaySound(target.KillSfx, false, 0.8f);
+            if(MeetingHud.Instance) {
+                foreach(PlayerVoteArea pva in MeetingHud.Instance.playerStates) {
+                    if(pva.TargetPlayerId == playerId || pva.TargetPlayerId == partnerId) {
+                        pva.SetDead(pva.DidReport, true);
+                        pva.Overlay.gameObject.SetActive(true);
+                    }
+                }
+                if(AmongUsClient.Instance.AmHost)
+                    MeetingHud.Instance.CheckForEndVoting();
+            }
+            if(HudManager.Instance != null && NiceGuesser.guesser != null)
+                if(PlayerControl.LocalPlayer == target)
+                    HudManager.Instance.KillOverlay.ShowKillAnimation(NiceGuesser.guesser.Data, target.Data);
+                else if(partner != null && PlayerControl.LocalPlayer == partner)
+                    HudManager.Instance.KillOverlay.ShowKillAnimation(partner.Data, partner.Data);
+        }
+
+        public static void witchSetShielded(byte shieldedId) {
+            Roles.Witch.usedShield = true;
+            Roles.Witch.shielded = Helpers.playerById(shieldedId);
+        }
+
+        public static void ninjaExpand() {
+            Roles.Ninja.ninjaExpand();
+        }
+
+        public static void chamaleonHide() {
+            Roles.Chamaleon.chamaleonHide();
+        }
+
+        public static void twoFaceMorph(byte playerId) {
+            Roles.TwoFace.twoFaceMorph(playerId);
+        }
+
+        public static void setMorphTarget(byte playerId, bool active) {
+            Roles.TwoFace.setMorphTarget(playerId, active);
+        }
+        public static void setTwoFacePos(bool pos) {
+            Roles.TwoFace.setTwoFacePos(pos);
         }
     }   
 
@@ -862,8 +944,29 @@ namespace TheOtherRoles
                 case (byte)CustomRPC.ArsonistWin:
                     RPCProcedure.arsonistWin();
                     break;
-                case (byte)CustomRPC.GuesserShoot:
-                    RPCProcedure.guesserShoot(reader.ReadByte());
+                case (byte)CustomRPC.BadGuesserShoot:
+                    RPCProcedure.badGuesserShoot(reader.ReadByte());
+                    break;
+                case (byte)CustomRPC.NiceGuesserShoot:
+                    RPCProcedure.niceGuesserShoot(reader.ReadByte());
+                    break;
+                case (byte)CustomRPC.WitchSetShielded:
+                    RPCProcedure.witchSetShielded(reader.ReadByte());
+                    break;
+                case (byte)CustomRPC.NinjaExpand:
+                    RPCProcedure.ninjaExpand();
+                    break;
+                case (byte)CustomRPC.ChamaleonHide:
+                    RPCProcedure.chamaleonHide();
+                    break;
+                case (byte)CustomRPC.TwoFaceMorph:
+                    RPCProcedure.twoFaceMorph(reader.ReadByte());
+                    break;
+                case (byte)CustomRPC.SetMorphTarget:
+                    RPCProcedure.setMorphTarget(reader.ReadByte(), reader.ReadBoolean());
+                    break;
+                case (byte)CustomRPC.SetTwoFacePos:
+                    RPCProcedure.setTwoFacePos(reader.ReadBoolean());
                     break;
             }
         }

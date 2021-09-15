@@ -11,13 +11,16 @@ namespace TheOtherRoles.Patches {
     public static class CredentialsPatch {
         public static string fullCredentials = 
 $@"<size=130%><color=#ff351f>TheOtherRoles</color></size> v{TheOtherRolesPlugin.Version.ToString()}
-<size=80%>Modded by <color=#FCCE03FF>Eisbison</color>,
+<size=80%>Original modded by <color=#FCCE03FF>Eisbison</color>,
 <color=#FCCE03FF>Thunderstorm584</color> & <color=#FCCE03FF>EndOfFile</color>
-Button design by <color=#FCCE03FF>Bavari</color></size>";
+Original button design by <color=#FCCE03FF>Bavari</color></size>
+<size=60%>Additional Roles by <color=#FCCE03FF>SonOfMars</color>
+feat. <color=#FCCE03FF>Bonjwa Among SuS Community</color></size>";
 
     public static string mainMenuCredentials = 
-$@"Modded by <color=#FCCE03FF>Eisbison</color>, <color=#FCCE03FF>Thunderstorm584</color> & <color=#FCCE03FF>EndOfFile</color>
-Design by <color=#FCCE03FF>Bavari</color>";
+$@"Original modded by <color=#FCCE03FF>Eisbison</color>, <color=#FCCE03FF>Thunderstorm584</color> & <color=#FCCE03FF>EndOfFile</color>
+Original design by <color=#FCCE03FF>Bavari</color></size>
+<size=60%>Additional Roles by  <color=#FCCE03FF>SonOfMars</color> feat. <color=#FCCE03FF>Bonjwa Among SuS Community</color></size>";
 
         [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
         private static class VersionShowerPatch

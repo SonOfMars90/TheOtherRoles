@@ -54,9 +54,13 @@ namespace TheOtherRoles
         public static RoleInfo spy = new RoleInfo("Spy", Spy.color, "Confuse the <color=#FF1919FF>Impostors</color>", "Confuse the Impostors", RoleId.Spy);
         public static RoleInfo securityGuard = new RoleInfo("Security Guard", SecurityGuard.color, "Seal vents and place cameras", "Seal vents and place cameras", RoleId.SecurityGuard);
         public static RoleInfo arsonist = new RoleInfo("Arsonist", Arsonist.color, "Let them burn", "Let them burn", RoleId.Arsonist);
-        public static RoleInfo goodGuesser = new RoleInfo("Nice Guesser", Guesser.color, "Guess and shoot", "Guess and shoot", RoleId.Guesser);
-        public static RoleInfo badGuesser = new RoleInfo("Evil Guesser", Palette.ImpostorRed, "Guess and shoot", "Guess and shoot", RoleId.Guesser);
+        public static RoleInfo niceGuesser = new RoleInfo("Nice Guesser", NiceGuesser.color, "Guess and shoot", "Guess and shoot", RoleId.NiceGuesser);
+        public static RoleInfo badGuesser = new RoleInfo("Evil Guesser", Palette.ImpostorRed, "Guess and shoot", "Guess and shoot", RoleId.BadGuesser);
         public static RoleInfo bait = new RoleInfo("Bait", Bait.color, "Bait your enemies", "Bait your enemies", RoleId.Bait);
+        public static RoleInfo witch = new RoleInfo("Witch", Roles.Witch.color, "Be a nice Witch and find the <color=#FF1919FF>Impostors</color>", "Use your witchcrafts", RoleId.Witch);
+        public static RoleInfo ninja = new RoleInfo("Ninja", Roles.Ninja.color, "Expand and kill other Players", "Expand and kill everyone", RoleId.Ninja);
+        public static RoleInfo chamaleon = new RoleInfo("Chamaleon", Roles.Chamaleon.color, "Hide from others Player and kill", "Hide and kill everyone", RoleId.Chamaleon);
+        public static RoleInfo twoFace = new RoleInfo("Two Face", Roles.Chamaleon.color, "Change your look random to not get caught", "Change your look", RoleId.TwoFace);
         public static RoleInfo impostor = new RoleInfo("Impostor", Palette.ImpostorRed, Helpers.cs(Palette.ImpostorRed, "Sabotage and kill everyone"), "Sabotage and kill everyone", RoleId.Impostor);
         public static RoleInfo crewmate = new RoleInfo("Crewmate", Color.white, "Find the Impostors", "Find the Impostors", RoleId.Crewmate);
         public static RoleInfo lover = new RoleInfo("Lover", Lovers.color, $"You are in love", $"You are in love", RoleId.Lover);
@@ -76,7 +80,7 @@ namespace TheOtherRoles
             bountyHunter,
             niceMini,
             evilMini,
-            goodGuesser,
+            niceGuesser,
             badGuesser,
             lover,
             jester,
@@ -100,7 +104,11 @@ namespace TheOtherRoles
             spy,
             securityGuard,
             bountyHunter,
-            bait
+            bait,
+            witch,
+            ninja,
+            chamaleon,
+            twoFace
         };
 
         public static List<RoleInfo> getRoleInfoForPlayer(PlayerControl p) {
@@ -138,9 +146,14 @@ namespace TheOtherRoles
             if (p == Spy.spy) infos.Add(spy);
             if (p == SecurityGuard.securityGuard) infos.Add(securityGuard);
             if (p == Arsonist.arsonist) infos.Add(arsonist);
-            if (p == Guesser.guesser) infos.Add(p.Data.IsImpostor ? badGuesser : goodGuesser);
+            if (p == BadGuesser.guesser) infos.Add(badGuesser);
+            if (p == NiceGuesser.guesser) infos.Add(niceGuesser);
             if (p == BountyHunter.bountyHunter) infos.Add(bountyHunter);
             if (p == Bait.bait) infos.Add(bait);
+            if (p == Roles.Witch.witch) infos.Add(witch);
+            if (p == Roles.Ninja.ninja) infos.Add(ninja);
+            if (p == Roles.Chamaleon.chamaleon) infos.Add(chamaleon);
+            if (p == Roles.TwoFace.twoFace) infos.Add(twoFace);
 
             // Default roles
             if (infos.Count == 0 && p.Data.IsImpostor) infos.Add(impostor); // Just Impostor
