@@ -876,12 +876,11 @@ namespace TheOtherRoles
             // Two Face morph
             twoFaceMorphButton = new CustomButton(
                 () => {
-                  /**  System.Random random = new System.Random();
+                    System.Random random = new System.Random();
                     int f = random.Next(1, PlayerControl.AllPlayerControls._size);
                     int i = 1;
                     foreach(PlayerControl p in PlayerControl.AllPlayerControls) {
-                        if(p == null) continue;
-                        if(p == PlayerControl.LocalPlayer) {
+                        if(p == Roles.TwoFace.twoFace) {
                             f++;
                         }
                         if(i == f) {
@@ -894,7 +893,7 @@ namespace TheOtherRoles
 
                     MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.TwoFaceMorph, Hazel.SendOption.Reliable, -1);
                     writer.Write(Roles.TwoFace.morphTarget);
-                    AmongUsClient.Instance.FinishRpcImmediately(writer);**/
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                     twoFaceMorphButton.EffectDuration = Roles.TwoFace.duration;
                 },
