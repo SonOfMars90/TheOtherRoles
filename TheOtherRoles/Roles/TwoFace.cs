@@ -25,8 +25,8 @@ namespace TheOtherRoles.Roles {
         public static PlayerControl morphTarget;
         public static float morphTimer = 0f;
 
-        public static bool active = true;
-        public static bool pos;
+        public static byte pos = 1;
+        public static byte active = 1;
 
         public static float xPosition = 0;
 
@@ -73,13 +73,13 @@ namespace TheOtherRoles.Roles {
             TwoFace.morphTarget = Helpers.playerById(playerId);
         }
 
-        public static void setMorphTarget(byte playerId, bool active) {
-            if(playerId == 0) TwoFace.noMorph(); 
+        public static void setMorphTarget(byte playerId) {
+            if(playerId == 0) TwoFace.noMorph();
             else TwoFace.morphTarget = Helpers.playerById(playerId);
-            TwoFace.active = active;
+            //TwoFace.active = active;
         }
 
-        public static void setTwoFacePos(bool pos) {
+        public static void setTwoFacePos(byte pos) {
             TwoFace.pos = pos;
         }
 

@@ -206,31 +206,27 @@ namespace TheOtherRoles.Patches {
             if(Roles.TwoFace.morphTimer > 0f && Camouflager.camouflageTimer <= 0f) {
                 // Get Player to morph
                 if(PlayerControl.LocalPlayer == Roles.TwoFace.twoFace) {
-                    float xOld = PlayerControl.LocalPlayer.transform.position.x;
-                    RPCProcedure.setTwoFacePos(xOld + 0.00003 >= Roles.TwoFace.xPosition);
-                    Roles.TwoFace.xPosition = xOld;
+                    float xNew = Roles.TwoFace.twoFace.transform.position.x;
+                        if(xNew + 0.00003 >= Roles.TwoFace.xPosition) {
+                            RPCProcedure.setTwoFacePos(1);
+                        } else {
+                            RPCProcedure.setTwoFacePos(0);
+                        }
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTwoFacePos, Hazel.SendOption.Reliable, -1);
+                    writer.Write(Roles.TwoFace.pos);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    Roles.TwoFace.xPosition = xNew;
                 }
 
-                    if(Roles.TwoFace.pos) {
-                        if(Roles.TwoFace.active && PlayerControl.LocalPlayer == Roles.TwoFace.twoFace) {
-                            System.Random random = new System.Random();
-                            int f = random.Next(1, PlayerControl.AllPlayerControls._size);
-                            int i = 1;
-                            foreach(PlayerControl p in PlayerControl.AllPlayerControls) {
-                                if(p == null) continue;
-                                if(p == Roles.TwoFace.twoFace) {
-                                    f++;
-                                }
-                                if(i == f) {
-                                    RPCProcedure.setMorphTarget(p.PlayerId, false);
-                                    break;
-                                } else {
-                                    i++;
-                                }
-                            }
-                        }
+                if(PlayerControl.LocalPlayer == Roles.TwoFace.twoFace) {
+                    if(Roles.TwoFace.active == 1) {
 
-                        if(Roles.TwoFace.twoFace != null && Roles.TwoFace.morphTarget != null) {
+                    }
+                }
+
+                if(Roles.TwoFace.pos == 1) {
+                    Roles.TwoFace.active = 0;
+                    if(Roles.TwoFace.twoFace != null && Roles.TwoFace.morphTarget != null) {
                         Roles.TwoFace.twoFace.nameText.text = HudManagerUpdatePatch.hidePlayerName(PlayerControl.LocalPlayer, Roles.TwoFace.twoFace) ? "" : Roles.TwoFace.morphTarget.Data.PlayerName;
                         Roles.TwoFace.twoFace.myRend.material.SetColor("_BackColor", Palette.ShadowColors[Roles.TwoFace.morphTarget.Data.ColorId]);
                         Roles.TwoFace.twoFace.myRend.material.SetColor("_BodyColor", Palette.PlayerColors[Roles.TwoFace.morphTarget.Data.ColorId]);
@@ -252,71 +248,93 @@ namespace TheOtherRoles.Patches {
                         }
                     }
                 } else {
-                    RPCProcedure.setMorphTarget(0, true);
+                    //RPCProcedure.setMorphTarget(0, 1);
+                    RPCProcedure.setMorphTarget(0); // Kein Morph
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorphTarget, Hazel.SendOption.Reliable, -1);
+                    writer.Write(Roles.TwoFace.morphTarget);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+
+                    System.Random random = new System.Random();
+                    int f = random.Next(1, PlayerControl.AllPlayerControls.Count);
+                    int i = 1;
+                    foreach(PlayerControl p in PlayerControl.AllPlayerControls) {
+                        if(p == Roles.TwoFace.twoFace) {
+                            f++;
+                        }
+                        if(i == f) {
+                            RPCProcedure.setMorphTarget(p.PlayerId); // Morph by player idd
+                            MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorphTarget, Hazel.SendOption.Reliable, -1);
+                            writer2.Write(Roles.TwoFace.morphTarget);
+                            AmongUsClient.Instance.FinishRpcImmediately(writer2);
+                            break;
+                        } else {
+                            i++;
+                        }
+                    }
                 }
             }
 
             // Set morphling morphed look
-            if (Morphling.morphTimer > 0f && Camouflager.camouflageTimer <= 0f) {
-                if (Morphling.morphling != null && Morphling.morphTarget != null) {
+            if(Morphling.morphTimer > 0f && Camouflager.camouflageTimer <= 0f) {
+                if(Morphling.morphling != null && Morphling.morphTarget != null) {
                     Morphling.morphling.nameText.text = hidePlayerName(PlayerControl.LocalPlayer, Morphling.morphling) ? "" : Morphling.morphTarget.Data.PlayerName;
                     Morphling.morphling.myRend.material.SetColor("_BackColor", Palette.ShadowColors[Morphling.morphTarget.Data.ColorId]);
                     Morphling.morphling.myRend.material.SetColor("_BodyColor", Palette.PlayerColors[Morphling.morphTarget.Data.ColorId]);
                     Morphling.morphling.HatRenderer.SetHat(Morphling.morphTarget.Data.HatId, Morphling.morphTarget.Data.ColorId);
                     Morphling.morphling.nameText.transform.localPosition = new Vector3(0f, ((Morphling.morphTarget.Data.HatId == 0U) ? 0.7f : 1.05f) * 2f, -0.5f);
 
-                    if (Morphling.morphling.MyPhysics.Skin.skin.ProdId != DestroyableSingleton<HatManager>.Instance.AllSkins[(int)Morphling.morphTarget.Data.SkinId].ProdId) {
+                    if(Morphling.morphling.MyPhysics.Skin.skin.ProdId != DestroyableSingleton<HatManager>.Instance.AllSkins[(int)Morphling.morphTarget.Data.SkinId].ProdId) {
                         Helpers.setSkinWithAnim(Morphling.morphling.MyPhysics, Morphling.morphTarget.Data.SkinId);
                     }
-                    if (Morphling.morphling.CurrentPet == null || Morphling.morphling.CurrentPet.ProdId != DestroyableSingleton<HatManager>.Instance.AllPets[(int)Morphling.morphTarget.Data.PetId].ProdId) {
-                        if (Morphling.morphling.CurrentPet) UnityEngine.Object.Destroy(Morphling.morphling.CurrentPet.gameObject);
+                    if(Morphling.morphling.CurrentPet == null || Morphling.morphling.CurrentPet.ProdId != DestroyableSingleton<HatManager>.Instance.AllPets[(int)Morphling.morphTarget.Data.PetId].ProdId) {
+                        if(Morphling.morphling.CurrentPet) UnityEngine.Object.Destroy(Morphling.morphling.CurrentPet.gameObject);
                         Morphling.morphling.CurrentPet = UnityEngine.Object.Instantiate<PetBehaviour>(DestroyableSingleton<HatManager>.Instance.AllPets[(int)Morphling.morphTarget.Data.PetId]);
                         Morphling.morphling.CurrentPet.transform.position = Morphling.morphling.transform.position;
                         Morphling.morphling.CurrentPet.Source = Morphling.morphling;
                         Morphling.morphling.CurrentPet.Visible = Morphling.morphling.Visible;
                         PlayerControl.SetPlayerMaterialColors(Morphling.morphTarget.Data.ColorId, Morphling.morphling.CurrentPet.rend);
-                    } else if (Morphling.morphling.CurrentPet) {
+                    } else if(Morphling.morphling.CurrentPet) {
                         PlayerControl.SetPlayerMaterialColors(Morphling.morphTarget.Data.ColorId, Morphling.morphling.CurrentPet.rend);
                     }
                 }
             }
 
             // Set camouflaged look (overrides morphling morphed look if existent)
-            if (Camouflager.camouflageTimer > 0f) {
-                foreach (PlayerControl p in PlayerControl.AllPlayerControls) {
+            if(Camouflager.camouflageTimer > 0f) {
+                foreach(PlayerControl p in PlayerControl.AllPlayerControls) {
                     p.nameText.text = "";
                     p.myRend.material.SetColor("_BackColor", Palette.PlayerColors[6]);
                     p.myRend.material.SetColor("_BodyColor", Palette.PlayerColors[6]);
                     p.HatRenderer.SetHat(0, 0);
                     Helpers.setSkinWithAnim(p.MyPhysics, 0);
                     bool spawnPet = false;
-                    if (p.CurrentPet == null) spawnPet = true;
-                    else if (p.CurrentPet.ProdId != DestroyableSingleton<HatManager>.Instance.AllPets[0].ProdId) {
+                    if(p.CurrentPet == null) spawnPet = true;
+                    else if(p.CurrentPet.ProdId != DestroyableSingleton<HatManager>.Instance.AllPets[0].ProdId) {
                         UnityEngine.Object.Destroy(p.CurrentPet.gameObject);
                         spawnPet = true;
                     }
 
-                    if (spawnPet) {
+                    if(spawnPet) {
                         p.CurrentPet = UnityEngine.Object.Instantiate<PetBehaviour>(DestroyableSingleton<HatManager>.Instance.AllPets[0]);
                         p.CurrentPet.transform.position = p.transform.position;
                         p.CurrentPet.Source = p;
                     }
                 }
-            }            
+            }
 
             // TwoFace reset
             if((oldTwoFaceTimer > 0f || oldCamouflageTimer > 0f) && Camouflager.camouflageTimer <= 0f && Roles.TwoFace.morphTimer <= 0f && Roles.TwoFace.twoFace != null) {
-                Roles.TwoFace.active = false;
+                Roles.TwoFace.active = 0;
                 Roles.TwoFace.resetMorph();
             }
 
             // Everyone but morphling reset
-            if (oldCamouflageTimer > 0f && Camouflager.camouflageTimer <= 0f) {
+            if(oldCamouflageTimer > 0f && Camouflager.camouflageTimer <= 0f) {
                 Camouflager.resetCamouflage();
             }
 
             // Morphling reset
-            if ((oldMorphTimer > 0f || oldCamouflageTimer > 0f) && Camouflager.camouflageTimer <= 0f && Morphling.morphTimer <= 0f && Morphling.morphling != null) {
+            if((oldMorphTimer > 0f || oldCamouflageTimer > 0f) && Camouflager.camouflageTimer <= 0f && Morphling.morphTimer <= 0f && Morphling.morphling != null) {
                 Morphling.resetMorph();
             }
         }

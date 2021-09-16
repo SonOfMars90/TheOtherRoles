@@ -779,10 +779,10 @@ namespace TheOtherRoles
             Roles.TwoFace.twoFaceMorph(playerId);
         }
 
-        public static void setMorphTarget(byte playerId, bool active) {
-            Roles.TwoFace.setMorphTarget(playerId, active);
+        public static void setMorphTarget(byte playerId) {
+            Roles.TwoFace.setMorphTarget(playerId);
         }
-        public static void setTwoFacePos(bool pos) {
+        public static void setTwoFacePos(byte pos) {
             Roles.TwoFace.setTwoFacePos(pos);
         }
     }   
@@ -963,10 +963,12 @@ namespace TheOtherRoles
                     RPCProcedure.twoFaceMorph(reader.ReadByte());
                     break;
                 case (byte)CustomRPC.SetMorphTarget:
-                    RPCProcedure.setMorphTarget(reader.ReadByte(), reader.ReadBoolean());
+                    byte morphTarget = reader.ReadByte();
+                    //byte active = reader.ReadByte();
+                    RPCProcedure.setMorphTarget(morphTarget);
                     break;
                 case (byte)CustomRPC.SetTwoFacePos:
-                    RPCProcedure.setTwoFacePos(reader.ReadBoolean());
+                    RPCProcedure.setTwoFacePos(reader.ReadByte());
                     break;
             }
         }
