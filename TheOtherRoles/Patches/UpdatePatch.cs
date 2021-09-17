@@ -207,17 +207,20 @@ namespace TheOtherRoles.Patches {
                 // Get Player to morph
                 if(PlayerControl.LocalPlayer == Roles.TwoFace.twoFace) {
                     float xNew = Roles.TwoFace.twoFace.transform.position.x;
-                   /** if (xNew == Roles.TwoFace.xPosition - 0.00003) {
-                        RPCProcedure.setTwoFacePos(2);
-                    } else **/
+                    /** if (xNew == Roles.TwoFace.xPosition - 0.00003) {
+                         RPCProcedure.setTwoFacePos(2);
+                     } else **/
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTwoFacePos, Hazel.SendOption.Reliable, -1);                    
                     if(xNew + 0.00003 >= Roles.TwoFace.xPosition) {
+                        writer.Write(1);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer);
                         RPCProcedure.setTwoFacePos(1);
                     } else {
+                        writer.Write(0);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer);
                         RPCProcedure.setTwoFacePos(0);
                     }
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTwoFacePos, Hazel.SendOption.Reliable, -1);
-                    writer.Write(Roles.TwoFace.pos);
-                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    
                     Roles.TwoFace.xPosition = xNew;
                 }
 
@@ -246,10 +249,11 @@ namespace TheOtherRoles.Patches {
                     }
                 } else if(Roles.TwoFace.pos == 0) {
                     //RPCProcedure.setMorphTarget(0, 1);
-                    RPCProcedure.setMorphTarget(0); // Kein Morph
                     MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorphTarget, Hazel.SendOption.Reliable, -1);
-                    writer.Write(Roles.TwoFace.morphTarget);
+                    writer.Write(0);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    RPCProcedure.setMorphTarget(0); // Kein Morph
+
 
                     if(PlayerControl.LocalPlayer == Roles.TwoFace.twoFace && Roles.TwoFace.active == 1) {
                         System.Random random = new System.Random();
@@ -260,10 +264,11 @@ namespace TheOtherRoles.Patches {
                                 f++;
                             }
                             if(i == f) {
-                                RPCProcedure.setMorphTarget(p.PlayerId); // Morph by player id
+                                // RPCProcedure.setMorphTarget(p.PlayerId); // Morph by player id
                                 MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorphTarget, Hazel.SendOption.Reliable, -1);
-                                writer2.Write(Roles.TwoFace.morphTarget);
+                                writer2.Write(p.PlayerId);
                                 AmongUsClient.Instance.FinishRpcImmediately(writer2);
+                                RPCProcedure.setMorphTarget(p.PlayerId);
                                 Roles.TwoFace.active = 0;
                                 break;
                             } else {
