@@ -253,6 +253,26 @@ namespace TheOtherRoles.Patches {
 
                     if(PlayerControl.LocalPlayer == Roles.TwoFace.twoFace && Roles.TwoFace.active == 1) {
                         System.Random random = new System.Random();
+                        PlayerControl p;
+                        bool morphed;
+                        do {
+                            int f = random.Next(0, PlayerControl.AllPlayerControls.Count-1);
+                            p = PlayerControl.AllPlayerControls[f];
+                            if(p == Roles.TwoFace.twoFace || p.Data.IsDead) {
+                                morphed = false;
+                            } else {
+                                morphed = true;
+                            }
+                        } while(!morphed);
+
+                        MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorphTarget, Hazel.SendOption.Reliable, -1);
+                        writer2.Write(p.PlayerId);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer2);
+                        RPCProcedure.setMorphTarget(p.PlayerId); // Morph
+                        Roles.TwoFace.active = 0;
+
+
+                        /**System.Random random = new System.Random();
                         int f = random.Next(1, PlayerControl.AllPlayerControls.Count);
                         int i = 1;
                         foreach(PlayerControl p in PlayerControl.AllPlayerControls) {
@@ -269,7 +289,7 @@ namespace TheOtherRoles.Patches {
                             } else {
                                 i++;
                             }
-                        }
+                        }**/
                     }
                 }
             }
