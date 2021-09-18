@@ -53,7 +53,7 @@ namespace TheOtherRoles.Patches {
 
         static void setPlayerOutline(PlayerControl target, Color color) {
             if (target == null || target.myRend == null) return;
-            
+             
             target.myRend.material.SetFloat("_Outline", 1f);
             target.myRend.material.SetColor("_OutlineColor", color);
         }
@@ -74,14 +74,14 @@ namespace TheOtherRoles.Patches {
 
                 bool witchShieldActive = false;
                 if(Camouflager.camouflageTimer <= 0f && Roles.Witch.shielded != null && ((target == Roles.Witch.shielded && !isMorphedMorphling) || (isMorphedMorphling && Morphling.morphTarget == Roles.Witch.shielded))) {
-                    if(Roles.Witch.showShielded) witchShieldActive = true;
+                    witchShieldActive = Roles.Witch.showShielded && PlayerControl.LocalPlayer == Roles.Witch.witch;
                 }
 
                 if(hasVisibleShield) {
                     target.myRend.material.SetFloat("_Outline", 1f);
                     target.myRend.material.SetColor("_OutlineColor", Medic.shieldedColor);
                 } else if(witchShieldActive) {
-                    target.myRend.material.SetFloat("_Outline", 1f);
+                    target.myRend.material.SetFloat("_Outline", 4f);
                     target.myRend.material.SetColor("_OutlineColor", Roles.Witch.shieldedColor);
                 } else {
                     target.myRend.material.SetFloat("_Outline", 0f);

@@ -876,9 +876,8 @@ namespace TheOtherRoles
             // Two Face morph
             twoFaceMorphButton = new CustomButton(
                 () => {
-
                     System.Random random = new System.Random();
-                    int f = random.Next(1, PlayerControl.AllPlayerControls._size);
+                    int f = random.Next(1, PlayerControl.AllPlayerControls.Count);
                     int i = 1;
                     foreach(PlayerControl p in PlayerControl.AllPlayerControls) {
                         if(p == Roles.TwoFace.twoFace) {
@@ -889,6 +888,7 @@ namespace TheOtherRoles
                             writer.Write(p.PlayerId);
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                             RPCProcedure.twoFaceMorph(p.PlayerId);
+                            Roles.TwoFace.active = 0;
                             break;
                         } else {
                             i++;

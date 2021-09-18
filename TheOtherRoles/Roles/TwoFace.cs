@@ -27,6 +27,7 @@ namespace TheOtherRoles.Roles {
 
         public static byte pos = 1;
         public static byte active = 1;
+        public static byte morph = 0;
 
         public static float xPosition = 0;
 
@@ -43,12 +44,14 @@ namespace TheOtherRoles.Roles {
         }
 
         public static void noMorph() {
+            if(morph == 0) return;
             twoFace.SetName(twoFace.Data.PlayerName);
             twoFace.SetHat(twoFace.Data.HatId, (int)twoFace.Data.ColorId);
             Helpers.setSkinWithAnim(twoFace.MyPhysics, twoFace.Data.SkinId);
             twoFace.SetPet(twoFace.Data.PetId);
             twoFace.CurrentPet.Visible = twoFace.Visible;
             twoFace.SetColor(twoFace.Data.ColorId);
+            morph = 0;
         }
 
         public static void clearAndReload() {
@@ -56,6 +59,10 @@ namespace TheOtherRoles.Roles {
             twoFace = null;
             morphTarget = null;
             morphTimer = 0f;
+            pos = 1;
+            active = 1;
+            xPosition = 0;
+            xPosition = 0;
             cooldown = CustomOptionHolder.twoFaceCooldown.getFloat();
             duration = CustomOptionHolder.twoFaceDuration.getFloat();
         }
@@ -74,9 +81,8 @@ namespace TheOtherRoles.Roles {
         }
 
         public static void setMorphTarget(byte playerId) {
-            if(playerId == 0) TwoFace.noMorph();
+            if(playerId == 255) TwoFace.noMorph();
             else TwoFace.morphTarget = Helpers.playerById(playerId);
-            //TwoFace.active = active;
         }
 
         public static void setTwoFacePos(byte pos) {
