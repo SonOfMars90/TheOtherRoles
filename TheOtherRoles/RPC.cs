@@ -109,7 +109,8 @@ namespace TheOtherRoles
         ChamaleonHide,
         TwoFaceMorph,
         SetMorphTarget,
-        SetTwoFacePos
+        SetTwoFacePos,
+        SetMorphActive
     }
 
     public static class RPCProcedure {
@@ -785,6 +786,10 @@ namespace TheOtherRoles
         public static void setTwoFacePos(byte pos) {
             Roles.TwoFace.setTwoFacePos(pos);
         }
+
+        public static void setMorphActive(byte active) {
+            Roles.TwoFace.setMorphActive(active);
+        }
     }   
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
@@ -969,6 +974,9 @@ namespace TheOtherRoles
                     break;
                 case (byte)CustomRPC.SetTwoFacePos:
                     RPCProcedure.setTwoFacePos(reader.ReadByte());
+                    break;
+                case (byte)CustomRPC.SetMorphActive:
+                    RPCProcedure.setMorphActive(reader.ReadByte());
                     break;
             }
         }

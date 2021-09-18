@@ -1,6 +1,7 @@
 using HarmonyLib;
 using Hazel;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static TheOtherRoles.TheOtherRoles;
 using TheOtherRoles.Objects;
@@ -876,7 +877,19 @@ namespace TheOtherRoles
             // Two Face morph
             twoFaceMorphButton = new CustomButton(
                 () => {
+                    List<PlayerControl> playerList = new List<PlayerControl>();
+
+                    foreach(PlayerControl z in PlayerControl.AllPlayerControls) {                   
+                        if(z != Roles.TwoFace.twoFace && !z.Data.IsDead) {
+                            playerList.Add(z);
+                        }
+                    }
+
                     System.Random random = new System.Random();
+                    int f = random.Next(0, PlayerControl.AllPlayerControls.Count - 1);
+                    PlayerControl p = playerList[f];
+
+                   /* System.Random random = new System.Random();
                     PlayerControl p;
                     bool morphed;
                     do {
@@ -887,7 +900,7 @@ namespace TheOtherRoles
                         } else {
                             morphed = true;
                         }
-                    } while(!morphed);
+                    } while(!morphed);*/
 
                     MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.TwoFaceMorph, Hazel.SendOption.Reliable, -1);
                     writer2.Write(p.PlayerId);

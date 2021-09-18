@@ -65,15 +65,23 @@ namespace TheOtherRoles.Patches {
                 if (target == null || target.myRend == null) continue;
                 
                 bool isMorphedMorphling = target == Morphling.morphling && Morphling.morphTarget != null && Morphling.morphTimer > 0f;
+                bool isTwoFaceMorph = target == (Roles.TwoFace.twoFace && Roles.TwoFace.morphTarget != null && Roles.TwoFace.morphTimer > 0f) && Roles.TwoFace.active == 1;
                 bool hasVisibleShield = false;
-                if (Camouflager.camouflageTimer <= 0f && Medic.shielded != null && ((target == Medic.shielded && !isMorphedMorphling) || (isMorphedMorphling && Morphling.morphTarget == Medic.shielded))) {
+                if (Camouflager.camouflageTimer <= 0f 
+                    && Medic.shielded != null 
+                    && ((target == Medic.shielded && !isMorphedMorphling && !isTwoFaceMorph)
+                    || (isMorphedMorphling && Morphling.morphTarget == Medic.shielded)
+                    || (isTwoFaceMorph && Roles.TwoFace.morphTarget == Medic.shielded))) {
                     hasVisibleShield = Medic.showShielded == 0 // Everyone
                         || (Medic.showShielded == 1 && (PlayerControl.LocalPlayer == Medic.shielded || PlayerControl.LocalPlayer == Medic.medic)) // Shielded + Medic
                         || (Medic.showShielded == 2 && PlayerControl.LocalPlayer == Medic.medic); // Medic only
                 }
 
                 bool witchShieldActive = false;
-                if(Camouflager.camouflageTimer <= 0f && Roles.Witch.shielded != null && ((target == Roles.Witch.shielded && !isMorphedMorphling) || (isMorphedMorphling && Morphling.morphTarget == Roles.Witch.shielded))) {
+                if(Camouflager.camouflageTimer <= 0f
+                    && Roles.Witch.shielded != null 
+                    && ((target == Roles.Witch.shielded && !isMorphedMorphling) 
+                    || (isMorphedMorphling && Morphling.morphTarget == Roles.Witch.shielded))) {
                     witchShieldActive = Roles.Witch.showShielded && PlayerControl.LocalPlayer == Roles.Witch.witch;
                 }
 

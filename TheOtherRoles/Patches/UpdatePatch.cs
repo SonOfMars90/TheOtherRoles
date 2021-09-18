@@ -222,7 +222,10 @@ namespace TheOtherRoles.Patches {
                 }
 
                 if(Roles.TwoFace.pos == 1) {
-                    Roles.TwoFace.active = 1;
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorphActive, Hazel.SendOption.Reliable, -1);
+                    writer.Write(1);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    RPCProcedure.setMorphActive(1); // Active Morph
                     if(Roles.TwoFace.twoFace != null && Roles.TwoFace.morphTarget != null) {
                         Roles.TwoFace.twoFace.nameText.text = HudManagerUpdatePatch.hidePlayerName(PlayerControl.LocalPlayer, Roles.TwoFace.twoFace) ? "" : Roles.TwoFace.morphTarget.Data.PlayerName;
                         Roles.TwoFace.twoFace.myRend.material.SetColor("_BackColor", Palette.ShadowColors[Roles.TwoFace.morphTarget.Data.ColorId]);
@@ -231,7 +234,7 @@ namespace TheOtherRoles.Patches {
                         Roles.TwoFace.twoFace.nameText.transform.localPosition = new Vector3(0f, ((Roles.TwoFace.morphTarget.Data.HatId == 0U) ? 0.7f : 1.05f) * 2f, -0.5f);
 
                         if(Roles.TwoFace.twoFace.MyPhysics.Skin.skin.ProdId != DestroyableSingleton<HatManager>.Instance.AllSkins[(int)Roles.TwoFace.morphTarget.Data.SkinId].ProdId) {
-                            Helpers.setSkinWithAnim(Roles.TwoFace.twoFace.MyPhysics, Roles.TwoFace.twoFace.Data.SkinId);
+                            Helpers.setSkinWithAnim(Roles.TwoFace.twoFace.MyPhysics, Roles.TwoFace.morphTarget.Data.SkinId);
                         }
                         if(Roles.TwoFace.twoFace.CurrentPet == null || Roles.TwoFace.twoFace.CurrentPet.ProdId != DestroyableSingleton<HatManager>.Instance.AllPets[(int)Roles.TwoFace.morphTarget.Data.PetId].ProdId) {
                             if(Roles.TwoFace.twoFace.CurrentPet) UnityEngine.Object.Destroy(Roles.TwoFace.twoFace.CurrentPet.gameObject);
@@ -252,7 +255,20 @@ namespace TheOtherRoles.Patches {
                     RPCProcedure.setMorphTarget(255); // Kein Morph
 
                     if(PlayerControl.LocalPlayer == Roles.TwoFace.twoFace && Roles.TwoFace.active == 1) {
+                        List<PlayerControl> playerList = new List<PlayerControl>();
+
+                        foreach(PlayerControl z in PlayerControl.AllPlayerControls) {
+                            if(z != Roles.TwoFace.twoFace && !z.Data.IsDead) {
+                                playerList.Add(z);
+                            }
+                        }
+
                         System.Random random = new System.Random();
+                        int f = random.Next(0, playerList.Count - 1);
+                        PlayerControl p = playerList[f];
+
+
+                        /*System.Random random = new System.Random();
                         PlayerControl p;
                         bool morphed;
                         do {
@@ -263,14 +279,17 @@ namespace TheOtherRoles.Patches {
                             } else {
                                 morphed = true;
                             }
-                        } while(!morphed);
+                        } while(!morphed);*/
 
                         MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorphTarget, Hazel.SendOption.Reliable, -1);
                         writer2.Write(p.PlayerId);
                         AmongUsClient.Instance.FinishRpcImmediately(writer2);
                         RPCProcedure.setMorphTarget(p.PlayerId); // Morph
-                        Roles.TwoFace.active = 0;
 
+                        MessageWriter writer3 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorphActive, Hazel.SendOption.Reliable, -1);
+                        writer3.Write(0);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer3);
+                        RPCProcedure.setMorphActive(0); // Not Active Morph
 
                         /**System.Random random = new System.Random();
                         int f = random.Next(1, PlayerControl.AllPlayerControls.Count);

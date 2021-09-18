@@ -89,5 +89,9 @@ namespace TheOtherRoles.Roles {
             TwoFace.pos = pos;
         }
 
+        public static void setMorphActive(byte active) {
+            TwoFace.active = active;
+        }
+
     }
 }
